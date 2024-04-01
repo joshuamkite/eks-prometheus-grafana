@@ -1,6 +1,10 @@
 
 # EKS with Prometheus; Grafana; Load Balancer Controller
 
+Deploy an EKS cluster with Prometheus and Grafana in 2 ways:
+- Quick and dirty
+- Using Load balancer controller with IAM Roles for Service Accounts for endpoint access
+
 - [EKS with Prometheus; Grafana; Load Balancer Controller](#eks-with-prometheus-grafana-load-balancer-controller)
   - [Version 1 - quick and dirty](#version-1---quick-and-dirty)
   - [Version 2 - Helm with load balancer controller](#version-2---helm-with-load-balancer-controller)
@@ -96,6 +100,8 @@ Find load balancer URLs for prometheus and Grafana (value in each case for `Load
 
 
 kubectl get svc -n monitoring -l "app.kubernetes.io/name=grafana" -o yaml
+kubectl get svc prometheus-kube-prometheus-prometheus -n monitoring -o yaml
+
 ```
 or just
 ```bash
@@ -117,12 +123,15 @@ Grafana
 http://ac4b5b9e183aa4228a88e27a5f85fb5e-c205708f2ad48239.elb.eu-west-1.amazonaws.com
 
 get secret to log in to Grafana
-
+```bash
 kubectl get secret --namespace monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode; echo
-
+```
+prometheus is available on port 9090
 
 ## Notes
 
 - We are using a simple IAM user rather than 'proper' roles to admin cluster 
 - Services are world open. In production we would make these private behind a VPN or similar. Here we use NACLs to restrict access to our IP for demo.
-- load balancers won't be deleted as part of cluster `tofu destroy` and will block teardown of resources unless deployments removed first or deleted manually
+- load balancers won't be deleted as part of cluster `tofu destroy` and will block teardown of resources unless deployments removed first or deleted manually with, e.g. `helm uninstall prometheus -n monitoring`
+- Here we are using unencrypted http to access endpoints and Load balancer URLS. In production I would alias these with a a proper domain name and set up certificate manager or similar to support TLS encryption.
+- I am not committing my `backend.tf` file to source control because I don't want to disclose my AWS account number.
