@@ -1,9 +1,7 @@
 
 # EKS with Prometheus; Grafana; Load Balancer Controller
 
-Deploy an EKS cluster with Prometheus and Grafana in 2 ways:
-- Quick and dirty
-- Using Load balancer controller with IAM Roles for Service Accounts for endpoint access
+Deploy an EKS cluster with Terraform/Tofu and deploy Prometheus and Grafana in 2 ways: either quick and dirty using kubectl and port forwarding, or more elegantly with Helm and using Load balancer controller with IAM Roles for Service Accounts for endpoint access.
 
 - [EKS with Prometheus; Grafana; Load Balancer Controller](#eks-with-prometheus-grafana-load-balancer-controller)
   - [Version 1 - quick and dirty](#version-1---quick-and-dirty)
