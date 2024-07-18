@@ -67,12 +67,32 @@ https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.7/deploy/insta
 
 IAM set up with terraform with cluster
 
-create load balancer controller service account 
+create load balancer controller service account - I am using env vars to interpolate account ID and my home CIDR:
+
+```bash
+cd  terraform
+export AWS_ACCOUNT_ID=${your_aws_account_id}
+export TF_VAR_cidr_passlist=${your_cidr}
+tofu init
+tofu apply
+```
+
+Set up ~/.kube/config:
+
+```bash
+aws eks list-clusters 
+aws eks update-kubeconfig --name personal-eks-workshop
+```
+
+Create service account for Load Balancer controller
 
 ```bash
 cd helm/
-kubectl apply -f aws-load-balancer-controller-sa.yaml
+envsubst < aws-load-balancer-controller-sa.yaml | kubectl apply -f -
 ```
+(equivalent to `kubectl apply -f aws-load-balancer-controller-sa.yaml` with env var)
+
+Install load balancer controller:
 
 ```bash
 helm repo add eks https://aws.github.io/eks-charts
@@ -120,7 +140,7 @@ Grafana
 
 http://ac4b5b9e183aa4228a88e27a5f85fb5e-c205708f2ad48239.elb.eu-west-1.amazonaws.com
 
-get secret to log in to Grafana
+get secret to log in to Grafana (default username is 'admin')
 ```bash
 kubectl get secret --namespace monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode; echo
 ```
