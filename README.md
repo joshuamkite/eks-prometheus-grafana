@@ -6,6 +6,7 @@ Deploy an EKS cluster with Terraform/Tofu and deploy Prometheus and Grafana in 2
 - [EKS with Prometheus; Grafana; Load Balancer Controller](#eks-with-prometheus-grafana-load-balancer-controller)
   - [Version 1 - quick and dirty](#version-1---quick-and-dirty)
   - [Version 2 - Helm with load balancer controller](#version-2---helm-with-load-balancer-controller)
+    - [Cleanup](#cleanup)
   - [Notes](#notes)
 
 ## Version 1 - quick and dirty
@@ -145,6 +146,20 @@ get secret to log in to Grafana (default username is 'admin')
 kubectl get secret --namespace monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode; echo
 ```
 prometheus is available on port 9090
+
+### Cleanup
+
+Uninstall the Helm release. This is required to remove indirectly created resources such as load balancers, otherwise `tofu destroy` will fail on VPC deletion
+
+```
+helm uninstall prometheus --namespace monitoring
+```
+
+Tear down environment:
+
+```
+tofu destroy
+```
 
 ## Notes
 
